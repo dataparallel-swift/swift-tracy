@@ -14,12 +14,6 @@ let package = Package(
         .library(name: "Tracy", type: libraryType, targets: ["Tracy"]),
     ],
 
-    dependencies: [
-        .package(url: "https://github.com/apple/swift-syntax", from: "510.0.2")
-        // .package(url: "https://github.com/apple/swift-syntax", from: "600.0.0-prerelease-2024-05-14")
-        // .package(url: "https://github.com/apple/swift-syntax", branch: "main")
-    ],
-
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
@@ -27,12 +21,12 @@ let package = Package(
             name: "Tracy",
             dependencies: [
                 "TracyC",
-                "TracyMacros",
             ],
-            path: "Sources/tracy",
-            swiftSettings: [
-                .enableExperimentalFeature("CodeItemMacros")
-            ]
+            path: "Sources/tracy"
+            // swiftSettings: [
+            //     .interoperabilityMode(.Cxx),
+            //     .enableExperimentalFeature("CodeItemMacros")
+            // ]
         ),
 
         .systemLibrary(
@@ -56,17 +50,10 @@ let package = Package(
             sources: ["tracy-cbits.cpp"],
             publicHeadersPath: ".",
             cxxSettings: [
-                .unsafeFlags(["-march=native"])
+                .unsafeFlags(["-march=native"]),
+                // .define("TRACY_ENABLE"),
+                // .define("TRACY_NO_FRAME_MARK"),
             ]
-        ),
-
-        .macro(
-            name: "TracyMacros",
-            dependencies: [
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
-            ],
-            path: "Sources/tracy-macros"
         ),
     ]
 )

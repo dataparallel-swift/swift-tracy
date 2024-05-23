@@ -11,7 +11,7 @@ struct TracyMacros : CompilerPlugin {
         FrameMarkEnd.self,
 
         // marking zones
-        ZoneScoped.self
+        ZoneScoped.self,
     ]
 }
 
