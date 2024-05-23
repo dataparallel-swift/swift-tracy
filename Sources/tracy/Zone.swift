@@ -47,19 +47,30 @@ public struct Zone : ~Copyable {
 
     @inlinable
     @inline(__always)
-    public init(name: StaticString? = nil, function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0) {
+    public init(function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0) {
         // We don't care about the number of UTF-8 code points, we care about
         // the number of bytes to be copied, so just assert that it is ASCII.
         assert(function.isASCII)
         assert(file.isASCII)
 
-        if let _name = name {
-            assert(_name.isASCII)
-            self.loc = ___tracy_alloc_srcloc_name(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, _name.utf8Start, _name.utf8CodeUnitCount, colour)
+        self.loc = ___tracy_alloc_srcloc(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, colour)
+        if callstack > 0 {
+            self.ctx = ___tracy_emit_zone_begin_alloc_callstack(self.loc, callstack, 1)
         } else {
-            self.loc = ___tracy_alloc_srcloc(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, colour)
+            self.ctx = ___tracy_emit_zone_begin_alloc(self.loc, 1)
         }
+    }
 
+    @inlinable
+    @inline(__always)
+    public init(name: StaticString, function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0) {
+        // We don't care about the number of UTF-8 code points, we care about
+        // the number of bytes to be copied, so just assert that it is ASCII.
+        assert(function.isASCII)
+        assert(file.isASCII)
+        assert(name.isASCII)
+
+        self.loc = ___tracy_alloc_srcloc_name(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, name.utf8Start, name.utf8CodeUnitCount, colour)
         if callstack > 0 {
             self.ctx = ___tracy_emit_zone_begin_alloc_callstack(self.loc, callstack, 1)
         } else {
