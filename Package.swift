@@ -9,7 +9,6 @@ let libraryType: Product.Library.LibraryType? = (ProcessInfo.processInfo.environ
 
 let package = Package(
     name: "swift-tracy",
-    platforms: [.macOS(.v10_15)],
     products: [
         .library(name: "Tracy", type: libraryType, targets: ["Tracy"]),
     ],
