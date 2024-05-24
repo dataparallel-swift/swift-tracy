@@ -103,6 +103,7 @@ public struct Zone : ~Copyable {
         discard self
     }
 
+    // It is not a good idea to rely on this
     @inlinable
     @inline(__always)
     deinit {
