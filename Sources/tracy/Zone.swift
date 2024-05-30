@@ -32,49 +32,30 @@ import TracyC
 // scope that you want to measure. As there is no automatic destruction
 // mechanism, you must manually mark where the zone ends.
 //
-public struct Zone : ~Copyable {
-    // This is fucked. Because (a) swift does not follow lexical lifetime for
-    // the struct as a whole; and (b) it insists on copying data around
-    // needlessly, we need to use the _alloc versions of functions which adds
-    // unnecessary time and memory overhead to every call. One potential upside
-    // of this is that we could also relax the call to be any String type rather
-    // than restricting it to StaticString, but maybe one day we can unfuck this
-    // thing so we'll keep the more restrictive API for now.
-    @usableFromInline
-    let loc : UInt64
+public struct Zone {
     @usableFromInline
     let ctx : TracyCZoneCtx
 
+    // Swift does not allow us to store variables on the stack in the same way
+    // as in C (that is; unmoving, lexically scoped). I have attempted to work
+    // around that by keeping our own (thread local) stack (i.e. arena
+    // allocator) for the source location data and interact with the C API via
+    // that, but source location zones are identified using _static_ data
+    // structures that are embedded in the program code, because the profiler
+    // (background thread) may need to access that data at any time during the
+    // program lifetime. Thus we cannot reuse source location structures.
+    //
+    // Thus we are forced to use the _alloc versions of the functions which copy
+    // the source location data into an on-heap buffer. This has (significant)
+    // performance implications, but there is no easy way around it.
     @inlinable
     @inline(__always)
-    public init(function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0) {
-        // We don't care about the number of UTF-8 code points, we care about
-        // the number of bytes to be copied, so just assert that it is ASCII.
-        assert(function.isASCII)
-        assert(file.isASCII)
-
-        self.loc = ___tracy_alloc_srcloc(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, colour)
+    public init(name: StaticString? = nil, function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0) {
+        let loc = ___tracy_alloc_srcloc_name(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, name?.utf8Start, name?.utf8CodeUnitCount ?? 0, colour)
         if callstack > 0 {
-            self.ctx = ___tracy_emit_zone_begin_alloc_callstack(self.loc, callstack, 1)
+            self.ctx = ___tracy_emit_zone_begin_alloc_callstack(loc, callstack, 1)
         } else {
-            self.ctx = ___tracy_emit_zone_begin_alloc(self.loc, 1)
-        }
-    }
-
-    @inlinable
-    @inline(__always)
-    public init(name: StaticString, function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0) {
-        // We don't care about the number of UTF-8 code points, we care about
-        // the number of bytes to be copied, so just assert that it is ASCII.
-        assert(function.isASCII)
-        assert(file.isASCII)
-        assert(name.isASCII)
-
-        self.loc = ___tracy_alloc_srcloc_name(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, name.utf8Start, name.utf8CodeUnitCount, colour)
-        if callstack > 0 {
-            self.ctx = ___tracy_emit_zone_begin_alloc_callstack(self.loc, callstack, 1)
-        } else {
-            self.ctx = ___tracy_emit_zone_begin_alloc(self.loc, 1)
+            self.ctx = ___tracy_emit_zone_begin_alloc(loc, 1)
         }
     }
 
@@ -98,15 +79,7 @@ public struct Zone : ~Copyable {
 
     @inlinable
     @inline(__always)
-    public consuming func end() {
-        ___tracy_emit_zone_end(self.ctx)
-        discard self
-    }
-
-    // It is not a good idea to rely on this
-    @inlinable
-    @inline(__always)
-    deinit {
+    public func end() {
         ___tracy_emit_zone_end(self.ctx)
     }
 }
