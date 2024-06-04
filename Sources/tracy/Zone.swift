@@ -50,12 +50,12 @@ public struct Zone {
     // performance implications, but there is no easy way around it.
     @inlinable
     @inline(__always)
-    public init(name: StaticString? = nil, function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0) {
+    public init(name: StaticString? = nil, function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0, active: Bool = true) {
         let loc = ___tracy_alloc_srcloc_name(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, name?.utf8Start, name?.utf8CodeUnitCount ?? 0, colour)
         if callstack > 0 {
-            self.ctx = ___tracy_emit_zone_begin_alloc_callstack(loc, callstack, 1)
+            self.ctx = ___tracy_emit_zone_begin_alloc_callstack(loc, callstack, active ? 1 : 0)
         } else {
-            self.ctx = ___tracy_emit_zone_begin_alloc(loc, 1)
+            self.ctx = ___tracy_emit_zone_begin_alloc(loc, active ? 1 : 0)
         }
     }
 
