@@ -14,7 +14,11 @@ network. Collected traces may include source and assembly code as well.
 
 ## Adding it to your project
 
-TODO
+```swift
+    dependencies: [
+        .package(url: "git@gitlab.com/PassiveLogic/swift-tracy", revision: "...")
+    ]
+```
 
 ## Adding it to your code
 
@@ -32,14 +36,21 @@ interest.
 import Tracy
 
 func foo() {
-    let z = Tracy.Zone()
+    let z = #Zone
     defer { z.end() }
 
     // ... rest of the code
 }
 ```
 
+The `#Zone` macro optionally takes arguments to specify a custom name, colour,
+and callstack depth. It can also be set as active or disabled.
+
+If you cannot use the `#Zone` macro, the `Zone.init` function can be used
+instead, which takes the same arguments and is used in the same way, but has a
+higher runtime overhead.
+
 ## TODO
 
-Store the source location information as static data.
+* Add a build configuration to enable/disable tracing
 

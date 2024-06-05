@@ -2,14 +2,20 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import Foundation
+import CompilerPluginSupport
 import PackageDescription
 
 let libraryType: Product.Library.LibraryType? = (ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"] == "true") ? .static : nil
 
 let package = Package(
     name: "swift-tracy",
+    platforms: [.macOS(.v10_15)],
     products: [
         .library(name: "Tracy", type: libraryType, targets: ["Tracy"]),
+    ],
+
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-syntax", from: "600.0.0-prerelease-2024-05-28")
     ],
 
     targets: [
@@ -19,21 +25,14 @@ let package = Package(
             name: "Tracy",
             dependencies: [
                 "TracyC",
+                "TracyMacros",
             ],
             path: "Sources/tracy"
             // swiftSettings: [
+            //     .define("TRACY_ENABLE")
             //     .interoperabilityMode(.Cxx),
             //     .enableExperimentalFeature("CodeItemMacros")
             // ]
-        ),
-
-        .systemLibrary(
-            name: "capstone",
-            pkgConfig: "capstone",
-            providers: [
-                .apt(["libcapstone-dev"]),
-                .brew(["capstone"])
-            ]
         ),
         .target(
             name: "TracyC",
@@ -49,8 +48,24 @@ let package = Package(
             publicHeadersPath: ".",
             cxxSettings: [
                 .unsafeFlags(["-march=native"]),
-                // .define("TRACY_ENABLE"),
-                // .define("TRACY_NO_FRAME_MARK"),
+                .define("TRACY_ENABLE"),
+                .define("TRACY_NO_FRAME_IMAGE"),
+            ]
+        ),
+        .macro(
+            name: "TracyMacros",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+            ],
+            path: "Sources/tracy-macros"
+        ),
+        .systemLibrary(
+            name: "capstone",
+            pkgConfig: "capstone",
+            providers: [
+                .apt(["libcapstone-dev"]),
+                .brew(["capstone"])
             ]
         ),
     ]
