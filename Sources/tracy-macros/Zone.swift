@@ -12,8 +12,8 @@ public struct Zone : ExpressionMacro {
         let loc  = context.makeUniqueName("loc")
         let ctx  = context.makeUniqueName("ctx")
 
-        let functionName = context.lexicalContext.first?.functionName(in: context)
-        let function : ExprSyntax = functionName == nil ? "nil" : "StaticString(stringLiteral: \(literal: functionName)).utf8Start"
+        // fallback to #function, although this will just produce garbage
+        let function = context.lexicalContext.first?.functionName(in: context) ?? "#function"
         var name : ExprSyntax = "nil"
         var colour : ExprSyntax = "0"
         var callstack : ExprSyntax? = nil
@@ -78,7 +78,7 @@ public struct Zone : ExpressionMacro {
                 struct \(loc) {
                     static var data = ___tracy_source_location_data(
                         name: \(name),
-                        function: \(function),
+                        function: StaticString(stringLiteral: \(literal: function)).utf8Start,
                         file: StaticString(stringLiteral: #file).utf8Start,
                         line: #line,
                         color: \(colour))
@@ -94,7 +94,7 @@ public struct Zone : ExpressionMacro {
                 struct \(loc) {
                     static var data = ___tracy_source_location_data(
                         name: \(name),
-                        function: \(function),
+                        function: StaticString(stringLiteral: \(literal: function)).utf8Start,
                         file: StaticString(stringLiteral: #file).utf8Start,
                         line: #line,
                         color: \(colour))

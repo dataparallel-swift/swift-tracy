@@ -19,7 +19,7 @@
 // NOTE: This seems to require Swift 6 (-dev) in order to extract the function name
 //
 @freestanding(expression)
-public macro Zone(name: StaticString? = nil, colour: UInt32 = 0, callstack: Int32 = 0, active: Bool = true) -> Zone =
+public macro Zone(name: StaticString = .init(), colour: UInt32 = 0, callstack: Int32 = 0, active: Bool = true) -> Zone =
     #externalMacro(module: "TracyMacros", type: "Zone")
 
 public struct Zone {
@@ -35,7 +35,11 @@ public struct Zone {
     // Prefer to use the #Zone macro whenever possible
     @inlinable
     @inline(__always)
-    public init(name: StaticString? = nil, function: StaticString = #function, file: StaticString = #file, line: UInt32 = #line, colour: UInt32 = 0, callstack: Int32 = 0, active: Bool = true) {
+    public init(name: StaticString? = nil, colour: UInt32 = 0, callstack: Int32 = 0, active: Bool = true,
+        /* don't specify */ function: StaticString = #function,
+        /* don't specify */ file: StaticString = #file,
+        /* don't specify */ line: UInt32 = #line)
+    {
         let loc = ___tracy_alloc_srcloc_name(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, name?.utf8Start, name?.utf8CodeUnitCount ?? 0, colour)
         if callstack > 0 {
             self.ctx = ___tracy_emit_zone_begin_alloc_callstack(loc, callstack, active ? 1 : 0)
