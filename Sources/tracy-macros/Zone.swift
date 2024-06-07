@@ -76,6 +76,7 @@ public struct Zone : ExpressionMacro {
             return """
             {
                 struct \(loc) {
+                    @exclusivity(unchecked)
                     static var data = ___tracy_source_location_data(
                         name: \(name),
                         function: StaticString(stringLiteral: \(literal: function)).utf8Start,
@@ -92,6 +93,7 @@ public struct Zone : ExpressionMacro {
             return """
             {
                 struct \(loc) {
+                    @exclusivity(unchecked)
                     static var data = ___tracy_source_location_data(
                         name: \(name),
                         function: StaticString(stringLiteral: \(literal: function)).utf8Start,
