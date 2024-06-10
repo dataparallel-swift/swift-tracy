@@ -85,7 +85,7 @@ public struct Zone : ExpressionMacro {
                         color: \(colour))
                     }
                 let \(ctx) = ___tracy_emit_zone_begin_callstack(&\(loc).data, \(depth), \(active) ? 1 : 0)
-                return Zone.init(with: \(ctx))
+                return Tracy.Zone.init(with: \(ctx))
             }()
             """
         }
@@ -102,7 +102,7 @@ public struct Zone : ExpressionMacro {
                         color: \(colour))
                     }
                 let \(ctx) = ___tracy_emit_zone_begin(&\(loc).data, \(active) ? 1 : 0)
-                return Zone.init(with: \(ctx))
+                return Tracy.Zone.init(with: \(ctx))
             }()
             """
         }
@@ -115,7 +115,7 @@ public struct ZoneDisabled : ExpressionMacro {
         in context: some MacroExpansionContext
     ) throws -> ExprSyntax
     {
-        "return Zone.init(with: 0)"
+        "return Tracy.Zone.init(with: 0)"
     }
 }
 
