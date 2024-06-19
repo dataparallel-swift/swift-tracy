@@ -28,7 +28,7 @@ order to collect any trace data.
 
 Manual instrumentation is best started by adding markup to the application's
 main loop and a few functions that it calls, in order to get a rough outline of
-the function's time cost and refining the instrumentation deeper into the call
+the function's time cost, and refining the instrumentation deeper into the call
 stack from there. Automated sampling might also help guide you towards places of
 interest.
 
@@ -52,5 +52,7 @@ higher runtime overhead.
 
 ## TODO
 
-* Add a build configuration to enable/disable tracing
+* Add SPM configuration option to globally enable/disable tracing
+* Add #ZoneScoped macro (apple/swift#73707)
+* Call directly into C++ API
 
