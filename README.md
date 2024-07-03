@@ -16,7 +16,7 @@ network. Collected traces may include source and assembly code as well.
 
 ```swift
     dependencies: [
-        .package(url: "git@gitlab.com/PassiveLogic/swift-tracy", revision: "...")
+        .package(url: "git@gitlab.com/PassiveLogic/Experiments/swift-tracy", revision: "...")
     ]
 ```
 
