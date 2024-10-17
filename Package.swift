@@ -49,6 +49,9 @@ let package = Package(
             cxxSettings: [
                 .unsafeFlags(["-march=native"]),
                 .define("TRACY_ENABLE"),
+                .define("TRACY_DELAYED_INIT"),
+                .define("TRACY_MANUAL_LIFETIME"),
+                .define("TRACY_IGNORE_MEMORY_FAULTS"),
                 .define("TRACY_NO_FRAME_IMAGE"),
             ]
         ),

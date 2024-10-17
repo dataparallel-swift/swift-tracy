@@ -15,8 +15,95 @@
 // This means that the API presented to the C++ compiler and the Swift compiler
 // are actually different, so we need to make sure that they are kept in sync
 // (modulo our type changes which don't otherwise affect anything).
+
 /* #include "tracy-cbits.h" */
 
 #include "tracy/public/tracy/TracyC.h"
+#include "tracy/public/tracy/Tracy.hpp"
 #include "tracy/public/TracyClient.cpp"
+
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void* __libc_malloc(size_t size);
+void* __libc_calloc(size_t count, size_t size);
+void* __libc_realloc(void* ptr, size_t size);
+void* __libc_memalign(size_t alignment, size_t size);
+void  __libc_free(void* ptr);
+
+#ifdef __cplusplus
+}
+#endif
+
+#if __has_builtin(__builtin_expect)
+#define TRACY_LIKELY(expression) (__builtin_expect(!!(expression), 1))
+#define TRACY_UNLIKELY(expression) (__builtin_expect(!!(expression), 0))
+#else
+#define TRACY_LIKELY(expression) ((expression))
+#define TRACY_UNLIKELY(expression) ((expression))
+#endif
+
+
+__attribute__((constructor))
+void tracy_init() {
+  tracy::StartupProfiler();
+}
+
+
+void* malloc(size_t size)
+{
+  void* ptr = __libc_malloc(size);
+
+  if (TRACY_LIKELY(TracyIsStarted)) {
+    TracyAlloc(ptr, size);
+  }
+
+  return ptr;
+}
+
+void* calloc(size_t count, size_t size)
+{
+  void* ptr = __libc_calloc(count, size);
+
+  if (TRACY_LIKELY(TracyIsStarted)) {
+    TracyAlloc(ptr, count * size);
+  }
+
+  return ptr;
+}
+
+void* realloc(void* ptr, size_t size)
+{
+  void* new_ptr = __libc_realloc(ptr, size);
+
+  if (TRACY_LIKELY(TracyIsStarted)) {
+    TracyFree(ptr);
+    TracyAlloc(new_ptr, size);
+  }
+
+  return new_ptr;
+}
+
+void* memalign(size_t alignment, size_t size)
+{
+  void* ptr = __libc_memalign(alignment, size);
+
+  if (TRACY_LIKELY(TracyIsStarted)) {
+    TracyAlloc(ptr, size);
+  }
+
+  return ptr;
+}
+
+void free(void* ptr)
+{
+  __libc_free(ptr);
+
+  if (TRACY_LIKELY(TracyIsStarted)) {
+    TracyFree(ptr);
+  }
+}
 
