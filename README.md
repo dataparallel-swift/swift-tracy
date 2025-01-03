@@ -1,14 +1,14 @@
 # swift-tracy
 
 Swift integration for the Tracy profiler, a real-time, nanosecond-resolution,
-remote telemetry, hybrid instrumentation and sampling profile with a
+remote telemetry, hybrid instrumentation and sampling profiler with a
 full-featured graphical interface for finding hot spots in profiled programs.
 
 https://github.com/wolfpld/tracy
 
 ## Important note
 
-Depending on the configuration Tracy may broadcast discovery packets to the
+Depending on the configuration, Tracy may broadcast discovery packets to the
 local network and expose the data it collects in the background to the same
 network. Collected traces may include source and assembly code as well.
 
@@ -46,7 +46,7 @@ func foo() {
 The `#Zone` macro optionally takes arguments to specify a custom name, colour,
 and callstack depth. It can also be set as active or disabled.
 
-If you cannot use the `#Zone` macro, the `Zone.init` function can be used
+If you cannot use the `#Zone` macro, the `Zone` struct initialiser can be used
 instead, which takes the same arguments and is used in the same way, but has a
 higher runtime overhead.
 
