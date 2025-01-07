@@ -6,6 +6,8 @@
  * only ever a single instance of the client collecting instrumentation data.
  */
 
+#if TRACY_ENABLE
+
 // Not including our custom header because SPM is not applying preprocessor
 // defines when including the header only (so we need to #define TRACY_ENABLE
 // directly in that file, which causes a redefinition warning when it is
@@ -45,7 +47,6 @@ void  __libc_free(void* ptr);
 #define TRACY_LIKELY(expression) ((expression))
 #define TRACY_UNLIKELY(expression) ((expression))
 #endif
-
 
 __attribute__((constructor))
 void tracy_init() {
@@ -106,4 +107,6 @@ void free(void* ptr)
     TracyFree(ptr);
   }
 }
+
+#endif  // TRACY_ENABLE
 

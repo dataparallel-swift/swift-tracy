@@ -37,14 +37,18 @@ public struct Frame {
     @inline(__always)
     @discardableResult
     public init() {
+#if SWIFT_TRACY_ENABLE
         ___tracy_emit_frame_mark(nil)
+#endif
     }
 
     @inlinable
     @inline(__always)
     @discardableResult
     public init(_ name: StaticString) {
+#if SWIFT_TRACY_ENABLE
         ___tracy_emit_frame_mark(name.utf8Start)
+#endif
     }
 }
 

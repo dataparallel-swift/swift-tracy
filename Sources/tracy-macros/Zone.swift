@@ -115,7 +115,7 @@ public struct ZoneDisabled : ExpressionMacro {
         in context: some MacroExpansionContext
     ) throws -> ExprSyntax
     {
-        "return Tracy.Zone.init(with: 0)"
+        "Tracy.Zone.init(with: ___tracy_c_zone_context(id: 0, active: 0))"
     }
 }
 

@@ -18,18 +18,29 @@
 //
 // NOTE: This seems to require Swift 6 (-dev) in order to extract the function name
 //
+// XXX: The amount of duplication here is quite annoying...
+#if SWIFT_TRACY_ENABLE
 @freestanding(expression)
 public macro Zone(name: StaticString = .init(), colour: UInt32 = 0, callstack: Int32 = 0, active: Bool = true) -> Zone =
     #externalMacro(module: "TracyMacros", type: "Zone")
+#else
+@freestanding(expression)
+public macro Zone(name: StaticString = .init(), colour: UInt32 = 0, callstack: Int32 = 0, active: Bool = true) -> Zone =
+    #externalMacro(module: "TracyMacros", type: "ZoneDisabled")
+#endif
 
 public struct Zone {
+#if SWIFT_TRACY_ENABLE
     @usableFromInline
     let ctx : TracyCZoneCtx
+#endif
 
     @inlinable
     @inline(__always)
     public init(with context: TracyCZoneCtx) {
+#if SWIFT_TRACY_ENABLE
         self.ctx = context
+#endif
     }
 
     // Prefer to use the #Zone macro whenever possible
@@ -40,42 +51,54 @@ public struct Zone {
         /* don't specify */ file: StaticString = #file,
         /* don't specify */ line: UInt32 = #line)
     {
+#if SWIFT_TRACY_ENABLE
         let loc = ___tracy_alloc_srcloc_name(line, file.utf8Start, file.utf8CodeUnitCount, function.utf8Start, function.utf8CodeUnitCount, name?.utf8Start, name?.utf8CodeUnitCount ?? 0, colour)
         if callstack > 0 {
             self.ctx = ___tracy_emit_zone_begin_alloc_callstack(loc, callstack, active ? 1 : 0)
         } else {
             self.ctx = ___tracy_emit_zone_begin_alloc(loc, active ? 1 : 0)
         }
+#endif
     }
 
     @inlinable
     @inline(__always)
     public func name(_ name: String) {
+#if SWIFT_TRACY_ENABLE
         ___tracy_emit_zone_name(self.ctx, name, name.count)
+#endif
     }
 
     @inlinable
     @inline(__always)
     public func text(_ msg: String) {
+#if SWIFT_TRACY_ENABLE
         ___tracy_emit_zone_text(self.ctx, msg, msg.count)
+#endif
     }
 
     @inlinable
     @inline(__always)
     public func value(_ val: Int) {
+#if SWIFT_TRACY_ENABLE
         ___tracy_emit_zone_value(self.ctx, UInt64(val))
+#endif
     }
 
     @inlinable
     @inline(__always)
     public func colour(_ colour: UInt32) {
+#if SWIFT_TRACY_ENABLE
         ___tracy_emit_zone_color(self.ctx, colour)
+#endif
     }
 
     @inlinable
     @inline(__always)
     public func end() {
+#if SWIFT_TRACY_ENABLE
         ___tracy_emit_zone_end(self.ctx)
+#endif
     }
 }
 

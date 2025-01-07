@@ -20,6 +20,10 @@ network. Collected traces may include source and assembly code as well.
     ]
 ```
 
+By default, profiling is _not_ enabled. In order to enable profiling in client
+applications this package needs to be built with the environment variable
+`SWIFT_TRACY_ENABLE` set.
+
 ## Adding it to your code
 
 Unless your application is able to perform automated call stack sampling

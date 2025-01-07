@@ -5,7 +5,10 @@ import Foundation
 import CompilerPluginSupport
 import PackageDescription
 
-let libraryType: Product.Library.LibraryType? = (ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"] == "true") ? .static : nil
+// Packages consuming Tracy must manually enable profiling by defining the
+// environment variable `SWIFT_TRACY_ENABLE`
+let enabled     = ProcessInfo.processInfo.environment["SWIFT_TRACY_ENABLE"].isSet
+let libraryType = ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
 
 let package = Package(
     name: "swift-tracy",
@@ -27,12 +30,10 @@ let package = Package(
                 "TracyC",
                 "TracyMacros",
             ],
-            path: "Sources/tracy"
-            // swiftSettings: [
-            //     .define("TRACY_ENABLE")
-            //     .interoperabilityMode(.Cxx),
-            //     .enableExperimentalFeature("CodeItemMacros")
-            // ]
+            path: "Sources/tracy",
+            swiftSettings: !enabled ? [] : [
+                .define("SWIFT_TRACY_ENABLE")
+            ]
         ),
         .target(
             name: "TracyC",
@@ -46,7 +47,7 @@ let package = Package(
             // as obviously non-source files (e.g. README.md---yes, really...)
             sources: ["tracy-cbits.cpp"],
             publicHeadersPath: ".",
-            cxxSettings: [
+            cxxSettings: !enabled ? [] : [
                 .unsafeFlags(["-march=native"]),
                 .define("TRACY_ENABLE"),
                 .define("TRACY_DELAYED_INIT"),
@@ -73,3 +74,13 @@ let package = Package(
         ),
     ]
 )
+
+fileprivate extension String? {
+  var isSet: Bool {
+    if let v = self {
+      return v.isEmpty || v == "1" || v == "true"
+    }
+    return false
+  }
+}
+

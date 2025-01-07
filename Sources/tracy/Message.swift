@@ -9,14 +9,18 @@ import TracyC
 @inline(__always)
 public func message(_ text: StaticString, callstack: Int32 = 0)
 {
+#if SWIFT_TRACY_ENABLE
     ___tracy_emit_messageL(text.utf8Start, callstack)
+#endif
 }
 
 @inlinable
 @inline(__always)
 public func message(_ text: StaticString, colour: UInt32, callstack: Int32 = 0)
 {
+#if SWIFT_TRACY_ENABLE
     ___tracy_emit_messageLC(text.utf8Start, colour, callstack)
+#endif
 }
 
 
@@ -27,14 +31,18 @@ public func message(_ text: StaticString, colour: UInt32, callstack: Int32 = 0)
 @inline(__always)
 public func message(_ text: String, callstack: Int32 = 0)
 {
+#if SWIFT_TRACY_ENABLE
     ___tracy_emit_message(text, text.count, callstack)
+#endif
 }
 
 @inlinable
 @inline(__always)
 public func message(_ text: String, colour: UInt32, callstack: Int32 = 0)
 {
+#if SWIFT_TRACY_ENABLE
     ___tracy_emit_messageC(text, text.count, colour, callstack)
+#endif
 }
 
 // Add additional information about the profiled application to the trace
@@ -43,6 +51,8 @@ public func message(_ text: String, colour: UInt32, callstack: Int32 = 0)
 @inline(__always)
 public func appInfo(_ info: String)
 {
+#if SWIFT_TRACY_ENABLE
     ___tracy_emit_message_appinfo(info, info.count)
+#endif
 }
 
