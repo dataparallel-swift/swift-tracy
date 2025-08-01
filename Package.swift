@@ -78,7 +78,7 @@ let package = Package(
 fileprivate extension String? {
   var isSet: Bool {
     if let v = self {
-      return v.isEmpty || v == "1" || v == "true"
+      return v.isEmpty || v == "1" || v.lowercased() == "true"
     }
     return false
   }
