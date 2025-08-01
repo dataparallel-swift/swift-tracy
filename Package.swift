@@ -75,6 +75,10 @@ let package = Package(
     ]
 )
 
+if !enabled {
+    print("Tracy profiling is DISABLED. Enable it through the SWIFT_TRACY_ENABLE environment variable.")
+}
+
 fileprivate extension String? {
   var isSet: Bool {
     if let v = self {
