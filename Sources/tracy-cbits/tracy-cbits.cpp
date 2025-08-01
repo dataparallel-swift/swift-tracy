@@ -6,7 +6,7 @@
  * only ever a single instance of the client collecting instrumentation data.
  */
 
-#if TRACY_ENABLE
+#ifdef TRACY_ENABLE
 
 // Not including our custom header because SPM is not applying preprocessor
 // defines when including the header only (so we need to #define TRACY_ENABLE
@@ -26,20 +26,6 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void* __libc_malloc(size_t size);
-void* __libc_calloc(size_t count, size_t size);
-void* __libc_realloc(void* ptr, size_t size);
-void* __libc_memalign(size_t alignment, size_t size);
-void  __libc_free(void* ptr);
-
-#ifdef __cplusplus
-}
-#endif
-
 #if __has_builtin(__builtin_expect)
 #define TRACY_LIKELY(expression) (__builtin_expect(!!(expression), 1))
 #define TRACY_UNLIKELY(expression) (__builtin_expect(!!(expression), 0))
@@ -53,6 +39,22 @@ void tracy_init() {
   tracy::StartupProfiler();
 }
 
+
+#ifdef TRACY_INTERPOSE
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// This seems to work on *nix with glibc but will probably break elsewhere
+void* __libc_malloc(size_t size);
+void* __libc_calloc(size_t count, size_t size);
+void* __libc_realloc(void* ptr, size_t size);
+void* __libc_memalign(size_t alignment, size_t size);
+void  __libc_free(void* ptr);
+
+#ifdef __cplusplus
+}
+#endif
 
 void* malloc(size_t size)
 {
@@ -108,5 +110,6 @@ void free(void* ptr)
   }
 }
 
+#endif  // TRACY_INTERPOSE
 #endif  // TRACY_ENABLE
 

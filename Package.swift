@@ -8,6 +8,7 @@ import PackageDescription
 // Packages consuming Tracy must manually enable profiling by defining the
 // environment variable `SWIFT_TRACY_ENABLE`
 let enabled     = ProcessInfo.processInfo.environment["SWIFT_TRACY_ENABLE"].isSet
+let interpose   = ProcessInfo.processInfo.environment["SWIFT_TRACY_INTERPOSE"].isSet
 let libraryType = ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
 
 let package = Package(
@@ -54,7 +55,9 @@ let package = Package(
                 .define("TRACY_MANUAL_LIFETIME"),
                 .define("TRACY_IGNORE_MEMORY_FAULTS"),
                 .define("TRACY_NO_FRAME_IMAGE"),
-            ]
+            ] + (!interpose ? [] : [
+                .define("TRACY_ENABLE_INTERPOSE"),
+            ])
         ),
         .macro(
             name: "TracyMacros",
