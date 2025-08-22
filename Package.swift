@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import Foundation
@@ -46,18 +46,26 @@ let package = Package(
             // path, otherwise swift will try to compile everything it can find,
             // including code we don't care about (e.g. tests, examples) as well
             // as obviously non-source files (e.g. README.md---yes, really...)
-            sources: ["tracy-cbits.cpp"],
+            sources: [
+                "tracy-client.cpp",
+                "tracy-interpose.c",
+            ],
             publicHeadersPath: ".",
             cxxSettings: !enabled ? [] : [
-                .unsafeFlags(["-march=native"]),
+                .unsafeFlags([
+                    "-O3",
+                    "-march=native",
+                    "-Wall",
+                    "-Wextra",
+                    "-Wpedantic",
+                    "-fcolor-diagnostics",
+                ]),
                 .define("TRACY_ENABLE"),
                 .define("TRACY_DELAYED_INIT"),
                 .define("TRACY_MANUAL_LIFETIME"),
                 .define("TRACY_IGNORE_MEMORY_FAULTS"),
                 .define("TRACY_NO_FRAME_IMAGE"),
-            ] + (!interpose ? [] : [
-                .define("TRACY_ENABLE_INTERPOSE"),
-            ])
+            ]
         ),
         .macro(
             name: "TracyMacros",
@@ -75,7 +83,8 @@ let package = Package(
                 .brew(["capstone"])
             ]
         ),
-    ]
+    ],
+    cxxLanguageStandard: .cxx11
 )
 
 if !enabled {

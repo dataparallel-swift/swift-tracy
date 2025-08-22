@@ -71,8 +71,15 @@ TRACY_API void ___tracy_emit_frame_mark( const char* name );
 
 TRACY_API void ___tracy_emit_message_appinfo( const char* txt, size_t size );
 
+#ifdef TRACY_MANUAL_LIFETIME
 TRACY_API void ___tracy_startup_profiler(void);
 TRACY_API void ___tracy_shutdown_profiler(void);
+TRACY_API int32_t ___tracy_profiler_started(void);
+
+#  define TracyCIsStarted ___tracy_profiler_started()
+#else
+#  define TracyCIsStarted 1
+#endif
 
 #ifdef __cplusplus
 }
