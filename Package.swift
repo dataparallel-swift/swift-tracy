@@ -49,6 +49,7 @@ let package = Package(
             sources: !enableTracy ? [] : [
                 "tracy-init.cpp",
                 "tracy-client.cpp",
+                "tracy-demangle.cpp",
                 "tracy-interpose.c",
             ],
             publicHeadersPath: ".",
@@ -72,6 +73,7 @@ let package = Package(
                     "-fcolor-diagnostics",
                 ]),
                 .define("TRACY_ENABLE"),
+                .define("TRACY_DEMANGLE"),
                 .define("TRACY_DELAYED_INIT"),
                 .define("TRACY_MANUAL_LIFETIME"),
                 .define("TRACY_IGNORE_MEMORY_FAULTS"),
