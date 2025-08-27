@@ -47,6 +47,7 @@ let package = Package(
             // including code we don't care about (e.g. tests, examples) as well
             // as obviously non-source files (e.g. README.md---yes, really...)
             sources: !enableTracy ? [] : [
+                "tracy-init.cpp",
                 "tracy-client.cpp",
                 "tracy-interpose.c",
             ],

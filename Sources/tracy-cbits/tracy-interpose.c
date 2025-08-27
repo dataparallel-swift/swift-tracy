@@ -40,54 +40,9 @@
 #define tracy_likely(x)       (x)
 #endif
 
-static void _tracy_auto_process_init(void);
-static void _tracy_auto_process_done(void);
-
 #if defined(__GNUC__) || defined(__clang__)
-  // gcc,clang: use the constructor/destructor attribute
-  // which for both seem to run before regular constructors/destructors
-  #if defined(__clang__)
-    #define tracy_attr_constructor __attribute__((constructor(101)))
-    #define tracy_attr_destructor  __attribute__((destructor(101)))
-  #else
-    #define tracy_attr_constructor __attribute__((constructor))
-    #define tracy_attr_destructor  __attribute__((destructor))
-  #endif
-  static void tracy_attr_constructor tracy_process_attach(void) {
-    _tracy_auto_process_init();
-  }
-  static void tracy_attr_destructor tracy_process_detach(void) {
-    _tracy_auto_process_done();
-  }
-#elif defined(__cplusplus)
-  // C++: use static initialization to detect process start/end
-  // This is not guaranteed to be first/last but the best we can generally do?
-  struct tracy_init_done_t {
-    tracy_init_done_t() {
-      _tracy_auto_process_init();
-    }
-    ~tracy_init_done_t() {
-      _tracy_auto_process_done();
-    }
-  };
-  static tracy_init_done_t tracy_init_done;
- #else
-  #pragma message("define a way to call _tracy_auto_process_init/done on your platform")
 #endif
 
-static void _tracy_auto_process_init(void)
-{
-#if defined(TRACY_MANUAL_LIFETIME) && defined(TRACY_DELAYED_INIT)
-  ___tracy_startup_profiler();
-#endif
-}
-
-static void _tracy_auto_process_done(void)
-{
-#if defined(TRACY_MANUAL_LIFETIME) && defined(TRACY_DELAYED_INIT)
-  ___tracy_shutdown_profiler();
-#endif
-}
 
 
 static void* tracy_malloc(size_t size)
