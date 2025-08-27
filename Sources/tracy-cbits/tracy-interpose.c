@@ -7,6 +7,8 @@
 
 #ifdef TRACY_ENABLE
 
+#define _GNU_SOURCE // required for RTLD_NEXT
+
 // Not including our custom header because SPM is not applying preprocessor
 // defines when including the header only (so we need to #define TRACY_ENABLE
 // directly in that file, which causes a redefinition warning when it is
@@ -22,9 +24,10 @@
 #include "tracy/public/tracy/TracyC.h"
 // #include "tracy/public/tracy/Tracy.hpp"
 
-#include <dlfcn.h>
-#include <stdint.h>
 #include <assert.h>
+#include <dlfcn.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #if defined(__GNUC__) || defined(__clang__)
 #define tracy_unlikely(x)     (__builtin_expect(!!(x),false))
@@ -107,7 +110,7 @@ static void* tracy_malloc(size_t size)
   return ptr;
 }
 
-void* tracy_calloc(size_t count, size_t size)
+static void* tracy_calloc(size_t count, size_t size)
 {
   static void* (*next)(size_t, size_t) = NULL;
   if tracy_unlikely(!next) {
@@ -127,7 +130,7 @@ void* tracy_calloc(size_t count, size_t size)
   return ptr;
 }
 
-void* tracy_realloc(void* ptr, size_t new_size)
+static void* tracy_realloc(void* ptr, size_t new_size)
 {
   static void* (*next)(void*, size_t) = NULL;
   if tracy_unlikely(!next) {
@@ -136,12 +139,15 @@ void* tracy_realloc(void* ptr, size_t new_size)
     assert(next != &tracy_realloc);
   }
 
+  if tracy_likely(TracyCIsStarted) {
+    TracyCFree(ptr);
+  }
+
   void* new_ptr = next(ptr, new_size);
   if (new_ptr == NULL)
     return NULL;
 
   if tracy_likely(TracyCIsStarted) {
-    TracyCFree(ptr);
     TracyCAlloc(new_ptr, new_size);
   }
 
@@ -161,11 +167,11 @@ static void tracy_free(void *ptr)
     assert(next != &tracy_free);
   }
 
-  next(ptr);
-
   if tracy_likely(TracyCIsStarted) {
     TracyCFree(ptr);
   }
+
+  next(ptr);
 }
 
 // void* tracy_valloc(size_t size)
@@ -180,7 +186,7 @@ static void tracy_free(void *ptr)
 // {
 // }
 
-void* tracy__aligned_alloc(size_t alignment, size_t size)
+static void* tracy__aligned_alloc(size_t alignment, size_t size)
 {
   static void* (*next)(size_t, size_t) = NULL;
   if tracy_unlikely(next == NULL) {
@@ -200,7 +206,7 @@ void* tracy__aligned_alloc(size_t alignment, size_t size)
   return ptr;
 }
 
-void* tracy_memalign(size_t alignment, size_t size)
+static void* tracy_memalign(size_t alignment, size_t size)
 {
   static void* (*next)(size_t, size_t) = NULL;
   if tracy_unlikely(next == NULL) {
@@ -220,7 +226,7 @@ void* tracy_memalign(size_t alignment, size_t size)
   return ptr;
 }
 
-int tracy_posix_memalign(void** ptr, size_t alignment, size_t size)
+static int tracy_posix_memalign(void** ptr, size_t alignment, size_t size)
 {
   static int (*next)(void**, size_t, size_t) = NULL;
   if tracy_unlikely(next == NULL) {
@@ -241,7 +247,7 @@ int tracy_posix_memalign(void** ptr, size_t alignment, size_t size)
 }
 
 #if !defined(__GLIBC__) || __USE_ISOC11
-void* tracy_aligned_alloc(size_t alignment, size_t size)
+static void* tracy_aligned_alloc(size_t alignment, size_t size)
 {
   static void* (*next)(size_t, size_t) = NULL;
   if tracy_unlikely(next == NULL) {
