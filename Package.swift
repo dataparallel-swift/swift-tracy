@@ -7,8 +7,7 @@ import PackageDescription
 
 // Packages consuming Tracy must manually enable profiling by defining the
 // environment variable `SWIFT_TRACY_ENABLE`
-let enabled     = ProcessInfo.processInfo.environment["SWIFT_TRACY_ENABLE"].isSet
-let interpose   = ProcessInfo.processInfo.environment["SWIFT_TRACY_INTERPOSE"].isSet
+let enableTracy = ProcessInfo.processInfo.environment["SWIFT_TRACY_ENABLE"].isSet
 let libraryType = ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
 
 let package = Package(
@@ -16,6 +15,7 @@ let package = Package(
     platforms: [.macOS(.v10_15)],
     products: [
         .library(name: "Tracy", type: libraryType, targets: ["Tracy"]),
+        .library(name: "TracyC", type: libraryType, targets: ["TracyC"]),
     ],
 
     dependencies: [
@@ -32,7 +32,7 @@ let package = Package(
                 "TracyMacros",
             ],
             path: "Sources/tracy",
-            swiftSettings: !enabled ? [] : [
+            swiftSettings: !enableTracy ? [] : [
                 .define("SWIFT_TRACY_ENABLE")
             ]
         ),
@@ -46,12 +46,22 @@ let package = Package(
             // path, otherwise swift will try to compile everything it can find,
             // including code we don't care about (e.g. tests, examples) as well
             // as obviously non-source files (e.g. README.md---yes, really...)
-            sources: [
+            sources: !enableTracy ? [] : [
                 "tracy-client.cpp",
                 "tracy-interpose.c",
             ],
             publicHeadersPath: ".",
-            cxxSettings: !enabled ? [] : [
+            cSettings: !enableTracy ? [] : [
+                .unsafeFlags([
+                    "-O3",
+                    "-march=native",
+                    "-Wall",
+                    "-Wextra",
+                    "-Wpedantic",
+                    "-fcolor-diagnostics",
+                ]),
+            ],
+            cxxSettings: !enableTracy ? [] : [
                 .unsafeFlags([
                     "-O3",
                     "-march=native",
@@ -87,7 +97,7 @@ let package = Package(
     cxxLanguageStandard: .cxx11
 )
 
-if !enabled {
+if !enableTracy {
     print("Tracy profiling is DISABLED. Enable it through the SWIFT_TRACY_ENABLE environment variable.")
 }
 

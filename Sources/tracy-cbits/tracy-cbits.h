@@ -71,19 +71,58 @@ TRACY_API void ___tracy_emit_frame_mark( const char* name );
 
 TRACY_API void ___tracy_emit_message_appinfo( const char* txt, size_t size );
 
+TRACY_API int32_t ___tracy_connected(void);
+
 #ifdef TRACY_MANUAL_LIFETIME
 TRACY_API void ___tracy_startup_profiler(void);
 TRACY_API void ___tracy_shutdown_profiler(void);
 TRACY_API int32_t ___tracy_profiler_started(void);
-
-#  define TracyCIsStarted ___tracy_profiler_started()
-#else
-#  define TracyCIsStarted 1
 #endif
+
+
+#ifndef TRACY_ENABLE
+
+#define TracyCAlloc(x,y)
+#define TracyCAllocN(x,y,z)
+#define TracyCAllocS(x,y,z)
+#define TracyCAllocNS(x,y,z,w)
+
+#define TracyCFree(x)
+#define TracyCFreeN(x,y)
+#define TracyCFreeS(x,y,z)
+#define TracyCFreeNS(x,y,z)
+
+#define TracyCIsConnected 0
+#define TracyCIsStarted 0
+
+#else
+
+#ifdef TRACY_MANUAL_LIFETIME
+#define TracyCIsStarted ___tracy_profiler_started()
+#else
+#define TracyCIsStarted 1
+#endif
+
+#define TracyCIsConnected ___tracy_connected()
+
+#ifndef TRACY_CALLSTACK
+#define TRACY_CALLSTACK 0
+#endif
+
+#define TracyCAlloc( ptr, size ) ___tracy_emit_memory_alloc_callstack( ptr, size, TRACY_CALLSTACK, 0 )
+#define TracyCAllocN( ptr, size, name ) ___tracy_emit_memory_alloc_callstack_named( ptr, size, TRACY_CALLSTACK, 0, name )
+#define TracyCAllocS( ptr, size, depth ) ___tracy_emit_memory_alloc_callstack( ptr, size, depth, 0 )
+#define TracyCAllocNS( ptr, size, depth, name ) ___tracy_emit_memory_alloc_callstack_named( ptr, size, depth, 0, name )
+
+#define TracyCFree( ptr ) ___tracy_emit_memory_free_callstack( ptr, TRACY_CALLSTACK, 0 )
+#define TracyCFreeN( ptr, name ) ___tracy_emit_memory_free_callstack_named( ptr, TRACY_CALLSTACK, 0, name )
+#define TracyCFreeS( ptr, depth ) ___tracy_emit_memory_free_callstack( ptr, depth, 0 )
+#define TracyCFreeNS( ptr, depth, name ) ___tracy_emit_memory_free_callstack_named( ptr, depth, 0, name )
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif  // TRACY_ENABLE
+#endif  // __TRACY_CBITS_H__
 
