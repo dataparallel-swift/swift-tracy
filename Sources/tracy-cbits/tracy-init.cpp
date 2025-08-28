@@ -5,8 +5,11 @@
  */
 
 #ifdef TRACY_ENABLE
-
 #include "tracy/public/tracy/Tracy.hpp"
+
+#ifdef TRACY_CUDA_ENABLE
+#include "tracy/public/tracy/TracyCUDA.hpp"
+#endif
 
 static void ___tracy_auto_process_init(void);
 static void ___tracy_auto_process_done(void);
@@ -43,15 +46,30 @@ static void ___tracy_auto_process_done(void);
   #pragma message("define a way to call ___tracy_auto_process_init/done on your platform")
 #endif
 
+
+#if defined(TRACY_CUDA_ENABLE)
+static tracy::CUDACtx* ___tracy_cuda_context = nullptr;
+#endif
+
 static void ___tracy_auto_process_init(void)
 {
 #if defined(TRACY_MANUAL_LIFETIME) && defined(TRACY_DELAYED_INIT)
   tracy::StartupProfiler();
 #endif
+
+#if defined(TRACY_CUDA_ENABLE)
+  ___tracy_cuda_context = TracyCUDAContext();
+  TracyCUDAStartProfiling(___tracy_cuda_context);
+#endif
 }
 
 static void ___tracy_auto_process_done(void)
 {
+#if defined(TRACY_CUDA_ENABLE)
+  TracyCUDAStopProfiling(___tracy_cuda_context);
+  TracyCUDAContextDestroy(___tracy_cuda_context);
+#endif
+
 #if defined(TRACY_MANUAL_LIFETIME) && defined(TRACY_DELAYED_INIT)
   tracy::ShutdownProfiler();
 #endif

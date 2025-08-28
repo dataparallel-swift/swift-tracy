@@ -1,5 +1,6 @@
 module TracyC {
-  // requires cplusplus11
+  // requires c11
+  // requires cplusplus17
   header "tracy-cbits.h"
   export *
 }
