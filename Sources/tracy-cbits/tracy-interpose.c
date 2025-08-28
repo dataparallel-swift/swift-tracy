@@ -132,6 +132,7 @@ static void tracy_free(void *ptr)
 // {
 // }
 
+#if !defined(__APPLE__)
 static void* tracy_memalign(size_t alignment, size_t size)
 {
   DLSYM_REAL(memalign);
@@ -146,6 +147,7 @@ static void* tracy_memalign(size_t alignment, size_t size)
 
   return ptr;
 }
+#endif
 
 static int tracy_posix_memalign(void** ptr, size_t alignment, size_t size)
 {
@@ -205,9 +207,11 @@ void* malloc(size_t size)                                       TRACY_FORWARD1(t
 void* calloc(size_t size, size_t n)                             TRACY_FORWARD2(tracy_calloc, size, n)
 void* realloc(void* ptr, size_t new_size)                       TRACY_FORWARD2(tracy_realloc, ptr, new_size)
 void  free(void* p)                                             TRACY_FORWARD0(tracy_free, p)
-void* memalign(size_t alignment, size_t size)                   TRACY_FORWARD2(tracy_memalign, alignment, size)
 int   posix_memalign(void** ptr, size_t alignment, size_t size) TRACY_FORWARD3(tracy_posix_memalign, ptr, alignment, size)
 
+#if !defined(__APPLE__)
+void* memalign(size_t alignment, size_t size)                   TRACY_FORWARD2(tracy_memalign, alignment, size)
+#endif
 #if !defined(__GLIBC__) || __USE_ISOC11
 void* aligned_alloc(size_t alignment, size_t size)              TRACY_FORWARD2(tracy_aligned_alloc, alignment, size)
 #endif
