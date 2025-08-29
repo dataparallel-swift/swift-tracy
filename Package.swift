@@ -11,6 +11,74 @@ let enableTracy = ProcessInfo.processInfo.environment["SWIFT_TRACY_ENABLE"].isSe
 let enableCUDA  = ProcessInfo.processInfo.environment["SWIFT_TRACY_CUDA_ENABLE"].isSet
 let libraryType = ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
 
+var _dependencies: [Target.Dependency] = ["capstone"]
+var _sources: [String] = []
+var _swiftSettings: [SwiftSetting] = []
+var _cSettings: [CSetting] = []
+var _cxxSettings: [CXXSetting] = []
+
+if !enableTracy {
+    print("Tracy profiling is DISABLED. Enable it through the SWIFT_TRACY_ENABLE environment variable.")
+} else {
+    _swiftSettings += [
+        .define("SWIFT_TRACY_ENABLE")
+    ]
+    _sources += [
+        "tracy-init.cpp",
+        "tracy-client.cpp",
+        "tracy-demangle.cpp",
+        "tracy-interpose.c",
+    ]
+    _cSettings += [
+        .unsafeFlags([
+            "-O3",
+            "-march=native",
+            "-Wall",    // we can replace these with .enableWarning in 6.2
+            "-Wextra",
+            "-Wpedantic",
+            "-fcolor-diagnostics",
+        ]),
+        .define("TRACY_ENABLE"),
+        .define("TRACY_DEMANGLE"),
+        .define("TRACY_DELAYED_INIT"),
+        .define("TRACY_MANUAL_LIFETIME"),
+        .define("TRACY_IGNORE_MEMORY_FAULTS"),
+        .define("TRACY_NO_FRAME_IMAGE"),
+        .headerSearchPath("tracy/public"),
+    ]
+    _cxxSettings += [
+        .unsafeFlags([
+            "-O3",
+            "-march=native",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-fcolor-diagnostics",
+        ]),
+        .define("TRACY_ENABLE"),
+        .define("TRACY_DEMANGLE"),
+        .define("TRACY_DELAYED_INIT"),
+        .define("TRACY_MANUAL_LIFETIME"),
+        .define("TRACY_IGNORE_MEMORY_FAULTS"),
+        .define("TRACY_NO_FRAME_IMAGE"),
+        .headerSearchPath("tracy/public"),
+    ]
+}
+
+if enableTracy && !enableCUDA {
+    print("Tracy CUDA profiling is DISABLED. Enable it through the SWIFT_TRACY_CUDA_ENABLE environment variable.")
+} else {
+    _dependencies += [
+        .product(name: "CUPTI", package: "swift-cuda"),
+    ]
+    _cSettings += [
+        .define("TRACY_CUDA_ENABLE"),
+    ]
+    _cxxSettings += [
+        .define("TRACY_CUDA_ENABLE"),
+    ]
+}
+
 let package = Package(
     name: "swift-tracy",
     platforms: [.macOS(.v10_15)],
@@ -34,67 +102,20 @@ let package = Package(
                 "TracyMacros",
             ],
             path: "Sources/tracy",
-            swiftSettings: !enableTracy ? [] : [
-                .define("SWIFT_TRACY_ENABLE")
-            ]
+            swiftSettings: _swiftSettings
         ),
         .target(
             name: "TracyC",
-            dependencies: [
-                "capstone",
-            ] + (!enableCUDA ? [] : [
-                .product(name: "CUPTI", package: "swift-cuda"),
-            ]),
+            dependencies: _dependencies,
             path: "Sources/tracy-cbits",
             // We must explicitly add the main source file and public header
             // path, otherwise swift will try to compile everything it can find,
             // including code we don't care about (e.g. tests, examples) as well
             // as obviously non-source files (e.g. README.md---yes, really...)
-            sources: !enableTracy ? [] : [
-                "tracy-init.cpp",
-                "tracy-client.cpp",
-                "tracy-demangle.cpp",
-                "tracy-interpose.c",
-            ],
+            sources: _sources,
             publicHeadersPath: ".",
-            cSettings: !enableTracy ? [] : ([
-                .unsafeFlags([
-                    "-O3",
-                    "-march=native",
-                    "-Wall",
-                    "-Wextra",
-                    "-Wpedantic",
-                    "-fcolor-diagnostics",
-                ]),
-                .define("TRACY_ENABLE"),
-                .define("TRACY_DEMANGLE"),
-                .define("TRACY_DELAYED_INIT"),
-                .define("TRACY_MANUAL_LIFETIME"),
-                .define("TRACY_IGNORE_MEMORY_FAULTS"),
-                .define("TRACY_NO_FRAME_IMAGE"),
-                .headerSearchPath("tracy/public"),
-            ] + (!enableCUDA ? [] : [
-                .define("TRACY_CUDA_ENABLE"),
-            ])),
-            cxxSettings: !enableTracy ? [] : ([
-                .unsafeFlags([
-                    "-O3",
-                    "-march=native",
-                    "-Wall",
-                    "-Wextra",
-                    "-Wpedantic",
-                    "-fcolor-diagnostics",
-                ]),
-                .define("TRACY_ENABLE"),
-                .define("TRACY_DEMANGLE"),
-                .define("TRACY_DELAYED_INIT"),
-                .define("TRACY_MANUAL_LIFETIME"),
-                .define("TRACY_IGNORE_MEMORY_FAULTS"),
-                .define("TRACY_NO_FRAME_IMAGE"),
-                .headerSearchPath("tracy/public"),
-            ] + (!enableCUDA ? [] : [
-                .define("TRACY_CUDA_ENABLE"),
-            ])),
+            cSettings: _cSettings,
+            cxxSettings: _cxxSettings,
         ),
         .macro(
             name: "TracyMacros",
@@ -116,14 +137,6 @@ let package = Package(
     cLanguageStandard: .c11,
     cxxLanguageStandard: .cxx17,
 )
-
-if !enableTracy {
-    print("Tracy profiling is DISABLED. Enable it through the SWIFT_TRACY_ENABLE environment variable.")
-}
-
-if enableTracy && !enableCUDA {
-    print("Tracy CUDA profiling is DISABLED. Enable it through the SWIFT_TRACY_ENABLE_CUDA environment variable.")
-}
 
 fileprivate extension String? {
   var isSet: Bool {
