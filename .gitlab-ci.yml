@@ -1,0 +1,120 @@
+stages:
+  - lint
+  - build
+  - test
+  - deploy
+
+include:
+  # Lint stage
+  - component: gitlab.com/PassiveLogic/ci/commitlint@4
+    inputs:
+      job-stage: lint
+  - component: gitlab.com/PassiveLogic/ci/swiftlint@4
+    inputs:
+      job-stage: lint
+  - component: gitlab.com/PassiveLogic/ci/swiftformat@4
+    inputs:
+      job-stage: lint
+  - component: gitlab.com/PassiveLogic/ci/swift-import-analyzer@4
+    inputs:
+      job-stage: lint
+
+  # Build stage
+  - component: gitlab.com/PassiveLogic/ci/swift-build@4
+    inputs:
+      job-prefix: "disabled-amd64-"
+      runner-tags:
+        - passivelogic-linux-small-amd64
+      additional-setup:
+        - git submodule sync
+        - git submodule update --init
+      warnings-as-errors: false
+
+  - component: gitlab.com/PassiveLogic/ci/swift-build@4
+    inputs:
+      job-prefix: "disabled-arm64-"
+      runner-tags:
+        - passivelogic-linux-small-arm64
+      additional-setup:
+        - git submodule sync
+        - git submodule update --init
+      warnings-as-errors: false
+
+  - component: gitlab.com/PassiveLogic/ci/swift-build@4
+    inputs:
+      job-prefix: "amd64-"
+      runner-tags:
+        - passivelogic-linux-small-amd64
+      additional-setup:
+        - export SWIFT_TRACY_ENABLE=true
+        - git submodule sync
+        - git submodule update --init
+      warnings-as-errors: false
+
+  - component: gitlab.com/PassiveLogic/ci/swift-build@4
+    inputs:
+      job-prefix: "arm64-"
+      runner-tags:
+        - passivelogic-linux-small-arm64
+      additional-setup:
+        - export SWIFT_TRACY_ENABLE=true
+        - git submodule sync
+        - git submodule update --init
+      warnings-as-errors: false
+
+  - component: gitlab.com/PassiveLogic/ci/swift-build@4
+    inputs:
+      job-prefix: "amd64-cuda-"
+      runner-tags:
+        - passivelogic-linux-small-amd64
+      additional-setup:
+        - export SWIFT_TRACY_ENABLE=true
+        - export SWIFT_TRACY_CUDA_ENABLE=true
+        - git submodule sync
+        - git submodule update --init
+        # Install CUDA
+        - apt-get -y install wget
+        - wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+        - dpkg -i cuda-keyring_1.1-1_all.deb
+        - apt-get update
+        - apt-get -y install cuda-nvcc-12-6 cuda-cupti-dev-12-6
+      warnings-as-errors: false
+
+  - component: gitlab.com/PassiveLogic/ci/swift-build@4
+    inputs:
+      job-prefix: "arm64-cuda-"
+      runner-tags:
+        - passivelogic-linux-small-arm64
+      additional-setup:
+        - export SWIFT_TRACY_ENABLE=true
+        - export SWIFT_TRACY_CUDA_ENABLE=true
+        - git submodule sync
+        - git submodule update --init
+        # Install CUDA
+        - apt-get -y install wget
+        - wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
+        - dpkg -i cuda-keyring_1.1-1_all.deb
+        - apt-get update
+        - apt-get -y install cuda-nvcc-12-6 cuda-cupti-dev-12-6
+      warnings-as-errors: false
+
+  # Test stage
+  - component: gitlab.com/PassiveLogic/ci/swift-api-check@4
+    inputs:
+      additional-setup:
+        - git submodule sync
+        - git submodule update --init
+
+  # Deploy stage
+  - component: gitlab.com/PassiveLogic/ci/swift-docs@4
+    inputs:
+      product-names:
+        - swift-tracy
+      runner-tags:
+        - passivelogic-linux-small-amd64
+
+  - component: gitlab.com/PassiveLogic/ci/swift-dependabot@4
+    inputs:
+      token: ${SWIFT_DEPENDABOT_TOKEN}
+      token-email: ${SWIFT_DEPENDABOT_EMAIL}
+      assignee-username: trevor@passivelogic.com
