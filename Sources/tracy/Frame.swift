@@ -1,3 +1,4 @@
+// Copyright (c) 2025 PassiveLogic, Inc.
 
 import TracyC
 
@@ -27,7 +28,6 @@ import TracyC
 // public macro FrameMarkEnd(_ name: StaticString) =
 //     #externalMacro(module: "TracyMacros", type: "FrameMarkEnd")
 
-
 // Frames can be used to (optionally) slice the execution record into repeated
 // units of work; e.g. the rendering of a frame, a simulation loop, etc. This
 // marks the transition point between frames.
@@ -37,18 +37,17 @@ public struct Frame {
     @inline(__always)
     @discardableResult
     public init() {
-#if SWIFT_TRACY_ENABLE
+        #if SWIFT_TRACY_ENABLE
         ___tracy_emit_frame_mark(nil)
-#endif
+        #endif
     }
 
     @inlinable
     @inline(__always)
     @discardableResult
     public init(_ name: StaticString) {
-#if SWIFT_TRACY_ENABLE
+        #if SWIFT_TRACY_ENABLE
         ___tracy_emit_frame_mark(name.utf8Start)
-#endif
+        #endif
     }
 }
-

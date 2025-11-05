@@ -1,13 +1,13 @@
+// Copyright (c) 2025 PassiveLogic, Inc.
 
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-public struct FrameMark : ExpressionMacro {
+public struct FrameMark: ExpressionMacro {
     public static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
-        in context: some MacroExpansionContext
-    ) -> ExprSyntax
-    {
+        in _: some MacroExpansionContext
+    ) -> ExprSyntax {
         // Note: [Handling strings in Tracy with Swift/C++ interop]
         //
         // Make sure we compile to the right IR. By default Swift will import
@@ -22,7 +22,8 @@ public struct FrameMark : ExpressionMacro {
         if let argument = node.arguments.first?.expression {
             if argument.as(StringLiteralExprSyntax.self) != nil {
                 return "___tracy_emit_frame_mark(StaticString(\(argument)).utf8Start)"
-            } else {
+            }
+            else {
                 return "___tracy_emit_frame_mark(\(argument).utf8Start)"
             }
         }
@@ -32,41 +33,38 @@ public struct FrameMark : ExpressionMacro {
     }
 }
 
-public struct FrameMarkStart : ExpressionMacro {
+public struct FrameMarkStart: ExpressionMacro {
     public static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
-        in context: some MacroExpansionContext
-    ) throws -> ExprSyntax
-    {
-        guard let argument = node.arguments.first?.expression
-        else {
+        in _: some MacroExpansionContext
+    ) throws -> ExprSyntax {
+        guard let argument = node.arguments.first?.expression else {
             throw TracyMacroError.missingArgument("name")
         }
 
         if argument.as(StringLiteralExprSyntax.self) != nil {
             return "___tracy_emit_frame_mark_start(StaticString(\(argument)).utf8Start)"
-        } else {
+        }
+        else {
             return "___tracy_emit_frame_mark_start(\(argument).utf8Start)"
         }
     }
 }
 
-public struct FrameMarkEnd : ExpressionMacro {
+public struct FrameMarkEnd: ExpressionMacro {
     public static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
-        in context: some MacroExpansionContext
-    ) throws -> ExprSyntax
-    {
-        guard let argument = node.arguments.first?.expression
-        else {
+        in _: some MacroExpansionContext
+    ) throws -> ExprSyntax {
+        guard let argument = node.arguments.first?.expression else {
             throw TracyMacroError.missingArgument("name")
         }
 
         if argument.as(StringLiteralExprSyntax.self) != nil {
             return "___tracy_emit_frame_mark_end(StaticString(\(argument)).utf8Start)"
-        } else {
+        }
+        else {
             return "___tracy_emit_frame_mark_end(\(argument).utf8Start)"
         }
     }
 }
-

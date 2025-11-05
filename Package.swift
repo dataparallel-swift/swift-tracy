@@ -1,39 +1,41 @@
 // swift-tools-version: 6.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
-import Foundation
 import CompilerPluginSupport
+import Foundation
 import PackageDescription
 
 // Packages consuming Tracy must manually enable profiling by defining the
 // environment variable `SWIFT_TRACY_ENABLE`
 let enableTracy = ProcessInfo.processInfo.environment["SWIFT_TRACY_ENABLE"].isSet
-let enableCUDA  = ProcessInfo.processInfo.environment["SWIFT_TRACY_CUDA_ENABLE"].isSet
+let enableCUDA = ProcessInfo.processInfo.environment["SWIFT_TRACY_CUDA_ENABLE"].isSet
 let libraryType = ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
 
-var _dependencies: [Target.Dependency] = ["capstone"]
-var _sources: [String] = []
-var _swiftSettings: [SwiftSetting] = []
-var _cSettings: [CSetting] = []
-var _cxxSettings: [CXXSetting] = []
+var dependencies: [Target.Dependency] = ["capstone"]
+var sources: [String] = []
+var swiftSettings: [SwiftSetting] = []
+var cSettings: [CSetting] = []
+var cxxSettings: [CXXSetting] = []
 
 if !enableTracy {
+    // swiftlint:disable:next logger_over_print
     print("Tracy profiling is DISABLED. Enable it through the SWIFT_TRACY_ENABLE environment variable.")
-} else {
-    _swiftSettings += [
-        .define("SWIFT_TRACY_ENABLE")
+}
+else {
+    swiftSettings += [
+        .define("SWIFT_TRACY_ENABLE"),
     ]
-    _sources += [
+    sources += [
         "tracy-init.cpp",
         "tracy-client.cpp",
         "tracy-demangle.cpp",
         "tracy-interpose.c",
     ]
-    _cSettings += [
+    cSettings += [
         .unsafeFlags([
             "-O3",
             "-march=native",
-            "-Wall",    // we can replace these with .enableWarning in 6.2
+            "-Wall", // we can replace these with .enableWarning in 6.2
             "-Wextra",
             "-Wpedantic",
             "-fcolor-diagnostics",
@@ -46,7 +48,7 @@ if !enableTracy {
         .define("TRACY_NO_FRAME_IMAGE"),
         .headerSearchPath("tracy/public"),
     ]
-    _cxxSettings += [
+    cxxSettings += [
         .unsafeFlags([
             "-O3",
             "-march=native",
@@ -65,16 +67,18 @@ if !enableTracy {
     ]
 }
 
-if enableTracy && !enableCUDA {
+if enableTracy, !enableCUDA {
+    // swiftlint:disable:next logger_over_print
     print("Tracy CUDA profiling is DISABLED. Enable it through the SWIFT_TRACY_CUDA_ENABLE environment variable.")
-} else {
-    _dependencies += [
+}
+else {
+    dependencies += [
         .product(name: "CUPTI", package: "swift-cuda"),
     ]
-    _cSettings += [
+    cSettings += [
         .define("TRACY_CUDA_ENABLE"),
     ]
-    _cxxSettings += [
+    cxxSettings += [
         .define("TRACY_CUDA_ENABLE"),
     ]
 }
@@ -102,26 +106,27 @@ let package = Package(
                 "TracyMacros",
             ],
             path: "Sources/tracy",
-            swiftSettings: _swiftSettings
+            swiftSettings: swiftSettings
         ),
         .target(
             name: "TracyC",
-            dependencies: _dependencies,
+            dependencies: dependencies,
             path: "Sources/tracy-cbits",
             // We must explicitly add the main source file and public header
             // path, otherwise swift will try to compile everything it can find,
             // including code we don't care about (e.g. tests, examples) as well
             // as obviously non-source files (e.g. README.md---yes, really...)
-            sources: _sources,
+            sources: sources,
             publicHeadersPath: ".",
-            cSettings: _cSettings,
-            cxxSettings: _cxxSettings,
+            cSettings: cSettings,
+            cxxSettings: cxxSettings
         ),
         .macro(
             name: "TracyMacros",
             dependencies: [
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
             ],
             path: "Sources/tracy-macros"
         ),
@@ -130,20 +135,19 @@ let package = Package(
             pkgConfig: "capstone",
             providers: [
                 .apt(["libcapstone-dev"]),
-                .brew(["capstone"])
+                .brew(["capstone"]),
             ]
         ),
     ],
     cLanguageStandard: .c11,
-    cxxLanguageStandard: .cxx17,
+    cxxLanguageStandard: .cxx17
 )
 
-fileprivate extension String? {
-  var isSet: Bool {
-    if let v = self {
-      return v.isEmpty || v == "1" || v.lowercased() == "true"
+private extension String? {
+    var isSet: Bool {
+        if let value = self {
+            return value.isEmpty || value == "1" || value.lowercased() == "true"
+        }
+        return false
     }
-    return false
-  }
 }
-

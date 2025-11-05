@@ -1,9 +1,10 @@
+// Copyright (c) 2025 PassiveLogic, Inc.
 
 import SwiftCompilerPlugin
 import SwiftSyntaxMacros
 
 @main
-struct TracyMacros : CompilerPlugin {
+struct TracyMacros: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         // marking frames
         FrameMark.self,
@@ -15,4 +16,3 @@ struct TracyMacros : CompilerPlugin {
         ZoneDisabled.self,
     ]
 }
-
