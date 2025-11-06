@@ -109,9 +109,12 @@ include:
   - component: gitlab.com/PassiveLogic/ci/swift-docs@4
     inputs:
       product-names:
-        - swift-tracy
+        - Tracy
       runner-tags:
         - passivelogic-linux-small-amd64
+      additional-setup:
+        - git submodule sync
+        - git submodule update --init
 
   - component: gitlab.com/PassiveLogic/ci/swift-dependabot@4
     inputs:
