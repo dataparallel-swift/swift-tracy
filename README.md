@@ -6,23 +6,23 @@ full-featured graphical interface for finding hot spots in profiled programs.
 
 https://github.com/wolfpld/tracy
 
-## Important note
-
-Depending on the configuration, Tracy may broadcast discovery packets to the
-local network and expose the data it collects in the background to the same
-network. Collected traces may include source and assembly code as well.
+> [!IMPORTANT]
+> Depending on the configuration, Tracy may broadcast discovery packets to the
+> local network and expose the data it collects in the background to the same
+> network. Collected traces may include source and assembly code as well.
 
 ## Adding it to your project
 
 ```swift
     dependencies: [
-        .package(url: "git@gitlab.com:PassiveLogic/compiler/swift-tracy", revision: "...")
+        .package(url: "https://github.com/dataparallel-swift/swift-tracy.git", from: "1.0.0")
     ]
 ```
 
 By default, profiling is _not_ enabled. In order to enable profiling in client
 applications this package needs to be built with the environment variable
-`SWIFT_TRACY_ENABLE` set.
+`SWIFT_TRACY_ENABLE` set. Optionally, you may also set `SWIFT_TRACY_CUDA_ENABLE`
+to enable CUDA profiling as well.
 
 ## Adding it to your code
 
@@ -54,9 +54,21 @@ If you cannot use the `#Zone` macro, the `Zone` struct initialiser can be used
 instead, which takes the same arguments and is used in the same way, but has a
 higher runtime overhead.
 
+Similarly, there are functions for adding `message` and `Frame` data to the
+trace.
+
+## Docker on Linux
+
+The best way to run Tracy is on bare metal. However, it is possible to run in a
+containerised environment while retaining CPU sampling features if you grant
+elevated access rights to the container running your client. For example:
+
+```
+docker run --rm -it --privileged --mount "type=bind,source=/sys/kernel/debug,target=/sys/kernel/debug,readonly" --user=0:0 --pid=host --runtime=nvidia --gpus=all ghcr.io/dataparallel-swift/swift:latest
+```
+
 ## TODO
 
-* Add SPM configuration option to globally enable/disable tracing
+* Memory profiling on macOS
 * Add #ZoneScoped macro (apple/swift#73707)
 * Call directly into C++ API
-
