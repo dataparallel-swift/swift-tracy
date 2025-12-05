@@ -11,7 +11,8 @@ let enableTracy = ProcessInfo.processInfo.environment["SWIFT_TRACY_ENABLE"].isSe
 let enableCUDA = ProcessInfo.processInfo.environment["SWIFT_TRACY_CUDA_ENABLE"].isSet
 let libraryType = ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
 
-var dependencies: [Target.Dependency] = ["capstone"]
+var packageDependencies: [Package.Dependency] = [.package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0")]
+var targetDependencies: [Target.Dependency] = ["capstone"]
 var sources: [String] = []
 var swiftSettings: [SwiftSetting] = []
 var cSettings: [CSetting] = []
@@ -72,7 +73,10 @@ if enableTracy, !enableCUDA {
     print("Tracy CUDA profiling is DISABLED. Enable it through the SWIFT_TRACY_CUDA_ENABLE environment variable.")
 }
 else {
-    dependencies += [
+    packageDependencies += [
+        .package(url: "https://github.com/dataparallel-swift/swift-cuda.git", from: "1.0.0"),
+    ]
+    targetDependencies += [
         .product(name: "CUPTI", package: "swift-cuda"),
     ]
     cSettings += [
@@ -91,11 +95,7 @@ let package = Package(
         .library(name: "TracyC", type: libraryType, targets: ["TracyC"]),
     ],
 
-    dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0"),
-        .package(url: "https://github.com/dataparallel-swift/swift-cuda.git", from: "1.0.0"),
-    ],
-
+    dependencies: packageDependencies,
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
@@ -110,7 +110,7 @@ let package = Package(
         ),
         .target(
             name: "TracyC",
-            dependencies: dependencies,
+            dependencies: targetDependencies,
             path: "Sources/tracy-cbits",
             // We must explicitly add the main source file and public header
             // path, otherwise swift will try to compile everything it can find,
