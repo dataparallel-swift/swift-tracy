@@ -8,6 +8,11 @@
 #include "tracy/public/tracy/Tracy.hpp"
 
 #ifdef TRACY_CUDA_ENABLE
+#include <cuda.h>
+#if CUDA_VERSION < 13000
+#define CUpti_ActivityCudaEvent2 CUpti_ActivityCudaEvent
+#endif
+
 #include "tracy/public/tracy/TracyCUDA.hpp"
 #endif
 
