@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [next]
 
-## [1.0.0] - YYYY-MM-DD
+## [1.0.1] - 2025-12-19
+
+### Changed
+
+- Update tracy submodule to v0.13.1
+
+## [1.0.0] - 2025-12-05
 
 ### Added
 
 - Initial public release
 
 
-[next]: https://github.com/dataparallel-swift/swift-tracy/compare/1.0.0...HEAD
+[next]: https://github.com/dataparallel-swift/swift-tracy/compare/1.0.1...HEAD
+[1.0.1]: https://github.com/dataparallel-swift/swift-tracy/compare/1.0.0...HEAD
 [1.0.0]: https://github.com/dataparallel-swift/swift-tracy/releases/tag/1.0.0
