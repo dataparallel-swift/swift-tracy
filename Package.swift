@@ -2,14 +2,13 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import CompilerPluginSupport
-import Foundation
 import PackageDescription
 
 // Packages consuming Tracy must manually enable profiling by defining the
 // environment variable `SWIFT_TRACY_ENABLE`
-let enableTracy = ProcessInfo.processInfo.environment["SWIFT_TRACY_ENABLE"].isSet
-let enableCUDA = ProcessInfo.processInfo.environment["SWIFT_TRACY_CUDA_ENABLE"].isSet
-let libraryType = ProcessInfo.processInfo.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
+let enableTracy = Context.environment["SWIFT_TRACY_ENABLE"].isSet
+let enableCUDA = Context.environment["SWIFT_TRACY_CUDA_ENABLE"].isSet
+let libraryType = Context.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
 
 var packageDependencies: [Package.Dependency] = [.package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0")]
 var targetDependencies: [Target.Dependency] = ["capstone"]
