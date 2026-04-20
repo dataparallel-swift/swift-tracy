@@ -20,6 +20,7 @@ var cxxSettings: [CXXSetting] = []
 if !enableTracy {
     // swiftlint:disable:next logger_over_print
     print("Tracy profiling is DISABLED. Enable it through the SWIFT_TRACY_ENABLE environment variable.")
+    sources = ["tracy-empty.c"]
 }
 else {
     swiftSettings += [
