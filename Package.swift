@@ -68,11 +68,7 @@ else {
     ]
 }
 
-if enableTracy, !enableCUDA {
-    // swiftlint:disable:next logger_over_print
-    print("Tracy CUDA profiling is DISABLED. Enable it through the SWIFT_TRACY_CUDA_ENABLE environment variable.")
-}
-else {
+if enableCUDA {
     packageDependencies += [
         .package(url: "https://github.com/dataparallel-swift/swift-cuda.git", from: "1.0.0"),
     ]
@@ -85,6 +81,10 @@ else {
     cxxSettings += [
         .define("TRACY_CUDA_ENABLE"),
     ]
+}
+else if enableTracy {
+    // swiftlint:disable:next logger_over_print
+    print("Tracy CUDA profiling is DISABLED. Enable it through the SWIFT_TRACY_CUDA_ENABLE environment variable.")
 }
 
 let package = Package(

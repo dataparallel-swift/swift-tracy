@@ -1,4 +1,4 @@
-// Copyright (c) 2025 The swift-tracy authors. All rights reserved.
+// Copyright (c) 2026 The swift-tracy authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -91,6 +91,9 @@ TRACY_API void ___tracy_shutdown_profiler(void);
 TRACY_API int32_t ___tracy_profiler_started(void);
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 #ifndef TRACY_ENABLE
 
@@ -130,10 +133,6 @@ TRACY_API int32_t ___tracy_profiler_started(void);
 #define TracyCFreeN( ptr, name ) ___tracy_emit_memory_free_callstack_named( ptr, TRACY_CALLSTACK, 0, name )
 #define TracyCFreeS( ptr, depth ) ___tracy_emit_memory_free_callstack( ptr, depth, 0 )
 #define TracyCFreeNS( ptr, depth, name ) ___tracy_emit_memory_free_callstack_named( ptr, depth, 0, name )
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif  // TRACY_ENABLE
 #endif  // __TRACY_CBITS_H__

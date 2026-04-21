@@ -1,4 +1,4 @@
-// Copyright (c) 2025 The swift-tracy authors. All rights reserved.
+// Copyright (c) 2026 The swift-tracy authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,15 +102,12 @@ static void* tracy_realloc(void* ptr, size_t new_size)
 {
   DLSYM_REAL(realloc);
 
-  if TRACY_LIKELY(TracyCIsStarted) {
-    TracyCFree(ptr);
-  }
-
   void* new_ptr = real_realloc(ptr, new_size);
   if (new_ptr == NULL)
     return NULL;
 
   if TRACY_LIKELY(TracyCIsStarted) {
+    TracyCFree(ptr);
     TracyCAlloc(new_ptr, new_size);
   }
 
@@ -216,7 +213,7 @@ static void* tracy_aligned_alloc(size_t alignment, size_t size)
 #endif
 
 void* malloc(size_t size)                                       TRACY_FORWARD1(tracy_malloc, size)
-void* calloc(size_t size, size_t n)                             TRACY_FORWARD2(tracy_calloc, size, n)
+void* calloc(size_t count, size_t size)                         TRACY_FORWARD2(tracy_calloc, count, size)
 void* realloc(void* ptr, size_t new_size)                       TRACY_FORWARD2(tracy_realloc, ptr, new_size)
 void  free(void* p)                                             TRACY_FORWARD0(tracy_free, p)
 int   posix_memalign(void** ptr, size_t alignment, size_t size) TRACY_FORWARD3(tracy_posix_memalign, ptr, alignment, size)

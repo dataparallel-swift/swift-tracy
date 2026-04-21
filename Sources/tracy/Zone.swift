@@ -1,4 +1,4 @@
-// Copyright (c) 2025 The swift-tracy authors. All rights reserved.
+// Copyright (c) 2026 The swift-tracy authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 // custom colour and name for the zone. The call stack can also be collected
 // with the zone by specifying the 'callstack:' parameter, which specifies the
 // depth of the callstack to capture. See the Tracy manual for further
-// information regarding callstack collection.zone
+// information regarding callstack collection.
 //
 // As there is no automatic destruction mechanism, you must manually mark where
 // the zone ends.

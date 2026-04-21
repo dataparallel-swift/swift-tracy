@@ -1,4 +1,4 @@
-// Copyright (c) 2025 The swift-tracy authors. All rights reserved.
+// Copyright (c) 2026 The swift-tracy authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import SwiftSyntaxMacros
 struct TracyMacros: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         // marking frames
+        // TODO: expose #FrameMark, #FrameMarkStart, #FrameMarkEnd in Sources/tracy/Frame.swift
+        // before un-commenting these (blocked on apple/swift#73707 for #ZoneScoped)
         FrameMark.self,
         FrameMarkStart.self,
         FrameMarkEnd.self,
