@@ -53,8 +53,8 @@ public func message(_ text: String, colour: UInt32, callstack: Int32 = 0) {
     #endif
 }
 
-// Add additional information about the profiled application to the trace
-// description (e.g. source repository version, application environment, etc.)
+/// Add additional information about the profiled application to the trace
+/// description (e.g. source repository version, application environment, etc.)
 @inlinable
 @inline(__always)
 public func appInfo(_ info: String) {

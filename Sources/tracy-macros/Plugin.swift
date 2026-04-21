@@ -18,14 +18,8 @@ import SwiftSyntaxMacros
 @main
 struct TracyMacros: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        // marking frames
-        // TODO: expose #FrameMark, #FrameMarkStart, #FrameMarkEnd in Sources/tracy/Frame.swift
-        // before un-commenting these (blocked on apple/swift#73707 for #ZoneScoped)
-        FrameMark.self,
-        FrameMarkStart.self,
-        FrameMarkEnd.self,
-
         // marking zones
+        // #ZoneScoped blocked on apple/swift#73707
         Zone.self,
         ZoneDisabled.self,
     ]
