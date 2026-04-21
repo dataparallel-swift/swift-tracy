@@ -146,6 +146,12 @@ let package = Package(
             path: "Sources/swift-tracy-demo",
             swiftSettings: swiftSettings
         ),
+        .testTarget(
+            name: "TracyInterpositionTests",
+            dependencies: ["TracyC"],
+            path: "Tests/TracyInterpositionTests",
+            swiftSettings: swiftSettings
+        ),
     ],
     cLanguageStandard: .c11,
     cxxLanguageStandard: .cxx17

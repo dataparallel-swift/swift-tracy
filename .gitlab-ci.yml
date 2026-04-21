@@ -99,6 +99,14 @@ include:
       warnings-as-errors: false
 
   # Test stage
+  - component: gitlab.com/PassiveLogic/ci/swift-test@4
+    inputs:
+      additional-setup:
+        - export SWIFT_TRACY_ENABLE=true
+        - git submodule sync
+        - git submodule update --init
+      warnings-as-errors: false
+
   - component: gitlab.com/PassiveLogic/ci/swift-api-check@4
     inputs:
       additional-setup:
