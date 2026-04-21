@@ -102,15 +102,12 @@ static void* tracy_realloc(void* ptr, size_t new_size)
 {
   DLSYM_REAL(realloc);
 
-  if TRACY_LIKELY(TracyCIsStarted) {
-    TracyCFree(ptr);
-  }
-
   void* new_ptr = real_realloc(ptr, new_size);
   if (new_ptr == NULL)
     return NULL;
 
   if TRACY_LIKELY(TracyCIsStarted) {
+    TracyCFree(ptr);
     TracyCAlloc(new_ptr, new_size);
   }
 
