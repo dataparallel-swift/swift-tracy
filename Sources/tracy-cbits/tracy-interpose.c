@@ -216,7 +216,7 @@ static void* tracy_aligned_alloc(size_t alignment, size_t size)
 #endif
 
 void* malloc(size_t size)                                       TRACY_FORWARD1(tracy_malloc, size)
-void* calloc(size_t size, size_t n)                             TRACY_FORWARD2(tracy_calloc, size, n)
+void* calloc(size_t count, size_t size)                         TRACY_FORWARD2(tracy_calloc, count, size)
 void* realloc(void* ptr, size_t new_size)                       TRACY_FORWARD2(tracy_realloc, ptr, new_size)
 void  free(void* p)                                             TRACY_FORWARD0(tracy_free, p)
 int   posix_memalign(void** ptr, size_t alignment, size_t size) TRACY_FORWARD3(tracy_posix_memalign, ptr, alignment, size)
