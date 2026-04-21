@@ -73,6 +73,7 @@ if enableCUDA {
         .package(url: "https://github.com/dataparallel-swift/swift-cuda.git", from: "1.0.0"),
     ]
     targetDependencies += [
+        .product(name: "CUDART", package: "swift-cuda"),
         .product(name: "CUPTI", package: "swift-cuda"),
     ]
     cSettings += [
