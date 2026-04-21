@@ -24,7 +24,7 @@
 // custom colour and name for the zone. The call stack can also be collected
 // with the zone by specifying the 'callstack:' parameter, which specifies the
 // depth of the callstack to capture. See the Tracy manual for further
-// information regarding callstack collection.zone
+// information regarding callstack collection.
 //
 // As there is no automatic destruction mechanism, you must manually mark where
 // the zone ends.
