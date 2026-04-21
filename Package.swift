@@ -94,6 +94,7 @@ let package = Package(
     products: [
         .library(name: "Tracy", type: libraryType, targets: ["Tracy"]),
         .library(name: "TracyC", type: libraryType, targets: ["TracyC"]),
+        .executable(name: "swift-tracy-demo", targets: ["swift-tracy-demo"]),
     ],
 
     dependencies: packageDependencies,
@@ -138,6 +139,12 @@ let package = Package(
                 .apt(["libcapstone-dev"]),
                 .brew(["capstone"]),
             ]
+        ),
+        .executableTarget(
+            name: "swift-tracy-demo",
+            dependencies: ["Tracy"],
+            path: "Sources/swift-tracy-demo",
+            swiftSettings: swiftSettings
         ),
     ],
     cLanguageStandard: .c11,
