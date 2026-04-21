@@ -28,6 +28,11 @@
 #include "tracy/public/tracy/TracyCUDA.hpp"
 #endif
 
+#ifdef TRACY_DEMANGLE
+extern void ___tracy_init_demangle_buffer();
+extern void ___tracy_free_demangle_buffer();
+#endif
+
 static void ___tracy_auto_process_init(void);
 static void ___tracy_auto_process_done(void);
 
@@ -74,6 +79,10 @@ static void ___tracy_auto_process_init(void)
   tracy::StartupProfiler();
 #endif
 
+#if defined(TRACY_DEMANGLE)
+  ___tracy_init_demangle_buffer();
+#endif
+
 #if defined(TRACY_CUDA_ENABLE)
   ___tracy_cuda_context = TracyCUDAContext();
   TracyCUDAStartProfiling(___tracy_cuda_context);
@@ -85,6 +94,10 @@ static void ___tracy_auto_process_done(void)
 #if defined(TRACY_CUDA_ENABLE)
   TracyCUDAStopProfiling(___tracy_cuda_context);
   TracyCUDAContextDestroy(___tracy_cuda_context);
+#endif
+
+#if defined(TRACY_DEMANGLE)
+  ___tracy_free_demangle_buffer();
 #endif
 
 #if defined(TRACY_MANUAL_LIFETIME) && defined(TRACY_DELAYED_INIT)
