@@ -1,2 +1,18 @@
+excluded:
+  - ${PWD}/**/.build
+  - ${PWD}/.git
+
+reporter: emoji
+
+switch_case_alignment:
+  indented_cases: true
+
+identifier_name:
+  min_length:
+    error: 1
+  allowed_symbols: "_"
+
 disabled_rules:
-  - redundant_optional_initialization
+  - force_unwrapping
+  - no_precondition
+  - no_fatalerror
