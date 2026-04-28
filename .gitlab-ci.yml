@@ -78,6 +78,7 @@ include:
         - dpkg -i cuda-keyring_1.1-1_all.deb
         - apt-get update
         - apt-get -y install cuda-nvcc-12-6 cuda-cupti-dev-12-6
+        - ln -s -t /usr/local/cuda/lib64 stubs/libcuda.so
       warnings-as-errors: false
 
   - component: gitlab.com/PassiveLogic/ci/swift-build@4
@@ -96,6 +97,7 @@ include:
         - dpkg -i cuda-keyring_1.1-1_all.deb
         - apt-get update
         - apt-get -y install cuda-nvcc-12-6 cuda-cupti-dev-12-6
+        - ln -s -t /usr/local/cuda/lib64 stubs/libcuda.so
       warnings-as-errors: false
 
   # Test stage
