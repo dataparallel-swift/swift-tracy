@@ -33,6 +33,11 @@ extern void ___tracy_init_demangle_buffer();
 extern void ___tracy_free_demangle_buffer();
 #endif
 
+#if defined(__APPLE__)
+extern "C" void ___tracy_init_malloc_logger();
+extern "C" void ___tracy_deinit_malloc_logger();
+#endif
+
 static void ___tracy_auto_process_init(void);
 static void ___tracy_auto_process_done(void);
 
@@ -83,6 +88,10 @@ static void ___tracy_auto_process_init(void)
   ___tracy_init_demangle_buffer();
 #endif
 
+#if defined(__APPLE__)
+  ___tracy_init_malloc_logger();
+#endif
+
 #if defined(TRACY_CUDA_ENABLE)
   ___tracy_cuda_context = TracyCUDAContext();
   TracyCUDAStartProfiling(___tracy_cuda_context);
@@ -91,6 +100,10 @@ static void ___tracy_auto_process_init(void)
 
 static void ___tracy_auto_process_done(void)
 {
+#if defined(__APPLE__)
+  ___tracy_deinit_malloc_logger();
+#endif
+
 #if defined(TRACY_CUDA_ENABLE)
   TracyCUDAStopProfiling(___tracy_cuda_context);
   TracyCUDAContextDestroy(___tracy_cuda_context);

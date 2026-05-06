@@ -69,6 +69,5 @@ docker run --rm -it --privileged --mount "type=bind,source=/sys/kernel/debug,tar
 
 ## TODO
 
-* Memory profiling on macOS
 * Add #ZoneScoped macro (apple/swift#73707)
 * Call directly into C++ API
