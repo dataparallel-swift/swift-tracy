@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [next]
 
+## [2.0.0]
+
+### Added
+- Support for memory tracking on macOS
+- `swift-tracy-demo` application
+
+### Removed
+- `Frame` struct; use the `frame*` functions instead
+
+### Fixed
+- Build fix for swift-tools-6.2+
+
 ## [1.0.1] - 2025-12-19
 
 ### Changed
@@ -20,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial public release
 
 
-[next]: https://github.com/dataparallel-swift/swift-tracy/compare/1.0.1...HEAD
-[1.0.1]: https://github.com/dataparallel-swift/swift-tracy/compare/1.0.0...HEAD
+[next]:  https://github.com/dataparallel-swift/swift-tracy/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/dataparallel-swift/swift-tracy/compare/1.0.1...2.0.0
+[1.0.1]: https://github.com/dataparallel-swift/swift-tracy/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/dataparallel-swift/swift-tracy/releases/tag/1.0.0
