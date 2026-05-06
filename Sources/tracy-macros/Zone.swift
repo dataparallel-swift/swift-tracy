@@ -88,6 +88,7 @@ public struct Zone: ExpressionMacro {
             {
                 struct \(loc) {
                     @exclusivity(unchecked)
+                    nonisolated(unsafe)
                     static var data = ___tracy_source_location_data(
                         name: \(name),
                         function: StaticString(stringLiteral: \(literal: function)).utf8Start,
@@ -105,6 +106,7 @@ public struct Zone: ExpressionMacro {
             {
                 struct \(loc) {
                     @exclusivity(unchecked)
+                    nonisolated(unsafe)
                     static var data = ___tracy_source_location_data(
                         name: \(name),
                         function: StaticString(stringLiteral: \(literal: function)).utf8Start,

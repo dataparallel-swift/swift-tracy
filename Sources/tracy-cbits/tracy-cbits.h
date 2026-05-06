@@ -80,6 +80,8 @@ TRACY_API void ___tracy_emit_messageC( const char* txt, size_t size, uint32_t co
 TRACY_API void ___tracy_emit_messageLC( const char* txt, uint32_t color, int callstack );
 
 TRACY_API void ___tracy_emit_frame_mark( const char* name );
+TRACY_API void ___tracy_emit_frame_mark_start( const char* name );
+TRACY_API void ___tracy_emit_frame_mark_end( const char* name );
 
 TRACY_API void ___tracy_emit_message_appinfo( const char* txt, size_t size );
 
