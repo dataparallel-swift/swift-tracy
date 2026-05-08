@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import CompilerPluginSupport
@@ -10,7 +10,7 @@ let enableTracy = Context.environment["SWIFT_TRACY_ENABLE"].isSet
 let enableCUDA = Context.environment["SWIFT_TRACY_CUDA_ENABLE"].isSet
 let libraryType = Context.environment["BUILD_STATIC_LIBRARIES"].isSet ? Product.Library.LibraryType.static : nil
 
-var packageDependencies: [Package.Dependency] = [.package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0")]
+var packageDependencies: [Package.Dependency] = [.package(url: "https://github.com/swiftlang/swift-syntax.git", "600.0.0" ..< "604.0.0")]
 var targetDependencies: [Target.Dependency] = ["capstone"]
 var sources: [String] = []
 var swiftSettings: [SwiftSetting] = []
